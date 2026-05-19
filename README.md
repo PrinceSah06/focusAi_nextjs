@@ -74,6 +74,12 @@ npm run lint
 npm run build
 ```
 
+Build command for Vercel:
+
+```bash
+npm run build
+```
+
 ## Auth Flow
 
 Frontend page:
@@ -169,6 +175,36 @@ npx prisma generate
 ```
 
 ## Deployment
+
+## Vercel Deployment
+
+Vercel settings:
+
+```text
+Framework Preset: Next.js
+Install Command: npm install
+Build Command: npm run build
+Output Directory: .next
+Root Directory: my-app
+```
+
+The `npm run build` command runs:
+
+```bash
+prisma generate && next build
+```
+
+That is important because the generated Prisma client is ignored by Git and must be generated again on Vercel.
+
+Add these environment variables in Vercel:
+
+```env
+DATABASE_URL="your-production-database-url"
+ACCESS_TOKEN_SECRET="your-long-access-token-secret"
+ACCESS_TOKEN_EXPIRES_IN="15m"
+REFRESH_TOKEN_SECRET="your-long-refresh-token-secret"
+REFRESH_TOKEN_EXPIRES_IN="7d"
+```
 
 Before deploying, make sure your production environment has:
 

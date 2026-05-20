@@ -4,7 +4,7 @@ import { loginUserSchema } from "@/src/schema/auth.schema";
 
 import { loginUser } from "@/src/services/auth.services";
 import { accessTokenExpiresIn, expiresInToSeconds } from "@/src/utils/token.utils";
-
+import {cookies} from "next/headers"
 export async function POST(req: Request) {
   try {
     // parse request body
@@ -44,7 +44,9 @@ export async function POST(req: Request) {
 
     const isProduction = process.env.NODE_ENV === "production";
 
-    response.cookies.set("accessToken", accessToken, {
+    const cookiesStore = await cookies()
+
+ cookiesStore.set("accessToken", accessToken, {
       httpOnly: true,
       sameSite: "lax",
       secure: isProduction,
@@ -52,7 +54,7 @@ export async function POST(req: Request) {
       maxAge: expiresInToSeconds(accessTokenExpiresIn, 15 * 60),
     });
 
-    response.cookies.set("refreshToken", refreshToken, {
+    cookiesStore.set("refreshToken", refreshToken, {
       httpOnly: true,
       sameSite: "lax",
       secure: isProduction,

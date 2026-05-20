@@ -174,3 +174,37 @@ export const refreshAuthSession = async (oldRefreshToken: string) => {
     refreshTokenMaxAge,
   };
 };
+
+
+export const deteteTokenFromDB=async(rawToken:string)=>{
+
+  const hasToken = hashToken(rawToken)
+
+  const isdelete = await prisma.refreshToken.deleteMany({
+  where: {
+    tokenHash: hasToken,
+  },
+});
+
+if(isdelete.count ===0){
+  throw new Error('recode mising')
+}
+
+return true
+
+}
+
+export const verifyUserInDb = async (email: string, userId: string) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      email,
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  return safeUser(user);
+};

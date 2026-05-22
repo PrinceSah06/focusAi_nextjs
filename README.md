@@ -1,6 +1,6 @@
 # FocusAI Next.js
 
-FocusAI is a Next.js app with a simple authentication flow. It has signup, login, JWT access tokens, refresh token rotation, Prisma, PostgreSQL, and a responsive Tailwind frontend.
+FocusAI is a Next.js app with signup, login, JWT access tokens, refresh token rotation, Prisma, PostgreSQL, and a Tailwind frontend.
 
 ## Tech Stack
 
@@ -10,6 +10,8 @@ FocusAI is a Next.js app with a simple authentication flow. It has signup, login
 - Tailwind CSS 4
 - Prisma ORM
 - PostgreSQL
+- JWT auth with `jsonwebtoken`
+- Password hashing with `bcryptjs`
 
 ## Getting Started
 
@@ -53,76 +55,86 @@ Start the development server:
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Commands
-
-Run these commands from the `my-app` folder:
-
-```bash
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm run dev
-```
-
-Useful check commands:
-
-```bash
-npx tsc --noEmit
-npm run lint
-npm run build
-```
-
-Build command for Vercel:
-
-```bash
-npm run build
-```
-
-## Auth Flow
-
-Frontend page:
-
-- `/` shows signup and login forms.
-
-API routes:
-
-- `POST /api/auth/register`: creates a new user.
-- `POST /api/auth/login`: verifies email/password, creates access and refresh tokens, stores a hashed refresh token, and sets cookies.
-- `POST /api/auth/refresh`: reads the refresh token cookie, verifies it, rotates it, saves the new hashed refresh token, sets the new refresh cookie, and returns a new access token.
-
-Token behavior:
-
-- Access token is short-lived.
-- Refresh token is longer-lived.
-- Refresh tokens are stored in the database as SHA-256 hashes, not plain text.
+Open [http://localhost:3000](http://localhost:3000).
 
 ## Available Scripts
 
 ```bash
 npm run dev
-```
-
-Runs the app locally with Next.js.
-
-```bash
 npm run build
-```
-
-Builds the production application.
-
-```bash
 npm run start
-```
-
-Starts the production server after a successful build.
-
-```bash
 npm run lint
 ```
 
-Runs ESLint.
+The production build script runs:
+
+```bash
+prisma generate && next build
+```
+
+This matters because the generated Prisma client is ignored by Git and must be regenerated after install, schema changes, or deployment.
+
+## Auth Flow
+
+Frontend routes:
+
+- `/`: signup and login page.
+- `/home`: protected page that verifies the `accessToken` cookie before rendering.
+
+Auth API routes:
+
+- `POST /api/auth/register`: validates input, hashes the password, and creates a user.
+- `POST /api/auth/login`: validates email/password, creates access and refresh tokens, stores a hashed refresh token, and sets `accessToken` and `refreshToken` cookies.
+- `GET /api/auth/me`: reads a bearer token or `accessToken` cookie, verifies it, and returns the current user.
+- `POST /api/auth/refresh`: reads the `refreshToken` cookie, verifies and rotates it, stores the new hashed refresh token, and sets fresh cookies.
+- `POST /api/auth/logout`: deletes the saved refresh token hash and clears auth cookies.
+
+Route protection:
+
+- `src/proxy.ts` is the Next.js request guard.
+- It redirects unauthenticated users from `/home` to `/`.
+- It redirects already-authenticated users from `/` to `/home`.
+- JWT verification still happens in route/page code, while the proxy only checks whether an `accessToken` cookie exists.
+
+Token behavior:
+
+- Access tokens are short-lived.
+- Refresh tokens are longer-lived.
+- Refresh tokens are stored in the database as SHA-256 hashes, not plain text.
+- Cookies are `httpOnly`, `sameSite: "lax"`, and `secure` in production.
+
+## Wiring Status
+
+Checked by reading the code, without running the app:
+
+- Signup UI is wired to `POST /api/auth/register`.
+- Login UI is wired to `POST /api/auth/login` and redirects to `/home`.
+- Login and refresh routes set both auth cookies.
+- `/home` validates the access token and redirects to `/` when invalid.
+- `src/proxy.ts` protects `/` and `/home`.
+- `/api/auth/me`, `/api/auth/refresh`, and `/api/auth/logout` exist, but there is no frontend UI currently calling them.
+- `src/app/api/task/route.ts` is still a stub and does not return a response.
+- `src/schema/task.schema.ts` is not wired into the task route yet.
+
+## Project Structure
+
+```text
+src/app/                    Next.js app routes and layout
+src/app/api/auth/           Auth API routes
+src/app/api/task/           Task API route placeholder
+src/app/home/               Protected home page
+src/proxy.ts                Next.js route guard
+src/features/auth/          Frontend auth feature
+src/features/auth/api/      Frontend fetch helpers
+src/features/auth/components Auth UI components
+src/lib/                    Shared app libraries
+src/schema/                 Zod validation schemas
+src/services/               Backend service logic
+src/utils/                  Token utilities
+app/generated/prisma/       Generated Prisma client, ignored by Git
+prisma/                     Prisma schema and migrations
+public/                     Static assets
+```
 
 ## Database Schema
 
@@ -131,8 +143,8 @@ The Prisma schema is defined in `prisma/schema.prisma`.
 Current models:
 
 - `User`: account profile with email, password, refresh tokens, tasks, schedules, and daily logs
-- `RefreshToken`: stored token hashes for auth session refresh
-- `Task`: user tasks with priority, status, estimated effort, energy requirement, and deadline
+- `RefreshToken`: stored token hashes for refresh sessions
+- `Task`: user tasks with priority, status, effort, energy requirement, and deadline
 - `Schedule`: daily schedule blocks with optional AI-generated summary
 - `DailyLog`: productivity metrics such as completed tasks, missed tasks, score, and AI calls used
 
@@ -140,25 +152,6 @@ Current enums:
 
 - `Priority`: `LOW`, `MEDIUM`, `HIGH`
 - `Status`: `TODO`, `IN_PROGRESS`, `COMPLETED`
-
-## Project Structure
-
-```text
-app/                         Next.js app routes and layout
-app/api/auth/                Auth API routes
-app/generated/prisma/        Generated Prisma client
-prisma/                      Prisma schema and migrations
-public/                      Static assets
-src/features/auth/           Frontend auth feature
-src/features/auth/api/       Frontend fetch helpers
-src/features/auth/components Auth UI components
-src/lib/                     Shared app libraries
-src/schema/                  Zod validation schemas
-src/services/                Backend service logic
-src/utils/                   Shared utility functions
-prisma.config.ts             Prisma configuration
-next.config.ts               Next.js configuration
-```
 
 ## Prisma Notes
 
@@ -168,13 +161,11 @@ The Prisma client is generated into:
 app/generated/prisma
 ```
 
-That generated folder is ignored by Git. Regenerate it after installing dependencies or changing the schema:
+That generated folder is ignored by Git. Regenerate it with:
 
 ```bash
 npx prisma generate
 ```
-
-## Deployment
 
 ## Vercel Deployment
 
@@ -188,14 +179,6 @@ Output Directory: .next
 Root Directory: my-app
 ```
 
-The `npm run build` command runs:
-
-```bash
-prisma generate && next build
-```
-
-That is important because the generated Prisma client is ignored by Git and must be generated again on Vercel.
-
 Add these environment variables in Vercel:
 
 ```env
@@ -206,10 +189,9 @@ REFRESH_TOKEN_SECRET="your-long-refresh-token-secret"
 REFRESH_TOKEN_EXPIRES_IN="7d"
 ```
 
-Before deploying, make sure your production environment has:
+Before deploying, make sure:
 
-- `DATABASE_URL` configured
-- `ACCESS_TOKEN_SECRET` configured with a strong random value
-- `REFRESH_TOKEN_SECRET` configured with a strong random value
-- migrations applied to the production database
-- a fresh production build from `npm run build`
+- `DATABASE_URL` is configured
+- token secrets are strong random values
+- migrations are applied to the production database
+- `npm run build` succeeds locally or in CI

@@ -25,8 +25,12 @@ export const createTaskSchema = z.object({
     .default(Status.TODO),
 
   energyRequired: z
-    .nativeEnum(Priority)
-    .default(Priority.MEDIUM),
+    .number()
+    .int()
+    .min(1)
+    .max(5)
+    .nullable()
+    .optional(),
 
   estimatedMinutes: z
     .number()

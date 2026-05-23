@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { deteteTokenFromDB } from "@/src/services/auth.services";
+import { deleteTokenFromDb } from "@/src/services/auth.services";
 
 
 export async function POST() {
@@ -15,7 +15,7 @@ export async function POST() {
       throw new Error("Token not found");
     }
 
-    await deteteTokenFromDB(refreshToken.value);
+    await deleteTokenFromDb(refreshToken.value);
 
     // const{token}= refreshToken
 

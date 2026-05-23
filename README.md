@@ -89,6 +89,20 @@ Auth API routes:
 - `POST /api/auth/refresh`: reads the `refreshToken` cookie, verifies and rotates it, stores the new hashed refresh token, and sets fresh cookies.
 - `POST /api/auth/logout`: deletes the saved refresh token hash and clears auth cookies.
 
+Task API routes:
+
+- `POST /api/task`: validates task input and creates a task for the authenticated user.
+- `GET /api/task`: returns all tasks for the authenticated user, newest updates first.
+- `GET /api/task/[taskId]`: returns one task only if it belongs to the authenticated user.
+- `PATCH /api/task/[taskId]`: validates task input and updates one task only if it belongs to the authenticated user.
+
+Task route errors:
+
+- Invalid task data returns `400`.
+- Missing or invalid authentication returns `401`.
+- Missing tasks return `404`.
+- Unexpected server errors return `500`.
+
 Route protection:
 
 - `src/proxy.ts` is the Next.js request guard.
@@ -113,15 +127,14 @@ Checked by reading the code, without running the app:
 - `/home` validates the access token and redirects to `/` when invalid.
 - `src/proxy.ts` protects `/` and `/home`.
 - `/api/auth/me`, `/api/auth/refresh`, and `/api/auth/logout` exist, but there is no frontend UI currently calling them.
-- `src/app/api/task/route.ts` is still a stub and does not return a response.
-- `src/schema/task.schema.ts` is not wired into the task route yet.
+- Task create, list, read, and update API routes are wired to Zod validation and service logic.
 
 ## Project Structure
 
 ```text
 src/app/                    Next.js app routes and layout
 src/app/api/auth/           Auth API routes
-src/app/api/task/           Task API route placeholder
+src/app/api/task/           Task API routes
 src/app/home/               Protected home page
 src/proxy.ts                Next.js route guard
 src/features/auth/          Frontend auth feature

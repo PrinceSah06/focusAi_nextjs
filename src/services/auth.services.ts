@@ -176,23 +176,21 @@ export const refreshAuthSession = async (oldRefreshToken: string) => {
 };
 
 
-export const deteteTokenFromDB=async(rawToken:string)=>{
+export const deleteTokenFromDb = async (rawToken: string) => {
+  const tokenHash = hashToken(rawToken);
 
-  const hasToken = hashToken(rawToken)
+  const deletedToken = await prisma.refreshToken.deleteMany({
+    where: {
+      tokenHash,
+    },
+  });
 
-  const isdelete = await prisma.refreshToken.deleteMany({
-  where: {
-    tokenHash: hasToken,
-  },
-});
+  if (deletedToken.count === 0) {
+    throw new Error("Record missing");
+  }
 
-if(isdelete.count ===0){
-  throw new Error('recode mising')
-}
-
-return true
-
-}
+  return true;
+};
 
 export const verifyUserInDb = async (email: string, userId: string) => {
   const user = await prisma.user.findFirst({

@@ -10,6 +10,8 @@ FocusAI is a Next.js app with signup, login, JWT access tokens, refresh token ro
 - Tailwind CSS 4
 - Prisma ORM
 - PostgreSQL
+- Axios
+- Zustand
 - JWT auth with `jsonwebtoken`
 - Password hashing with `bcryptjs`
 
@@ -95,6 +97,7 @@ Task API routes:
 - `GET /api/task`: returns all tasks for the authenticated user, newest updates first.
 - `GET /api/task/[taskId]`: returns one task only if it belongs to the authenticated user.
 - `PATCH /api/task/[taskId]`: validates task input and updates one task only if it belongs to the authenticated user.
+- `DELETE /api/task/[taskId]`: deletes one task only if it belongs to the authenticated user.
 
 Task route errors:
 
@@ -117,17 +120,54 @@ Token behavior:
 - Refresh tokens are stored in the database as SHA-256 hashes, not plain text.
 - Cookies are `httpOnly`, `sameSite: "lax"`, and `secure` in production.
 
+## Frontend Stores
+
+The app uses simple Zustand stores for frontend state.
+
+Axios instance:
+
+- File: `src/lib/axios.ts`
+- Base URL: `/api`
+- Sends cookies with requests using `withCredentials: true`
+- Adds the saved `accessToken` from `localStorage` to the `Authorization` header
+
+Auth store:
+
+- File: `src/store/authStore.ts`
+- Keeps `user`, `token`, `isLoading`, and `error`
+- Has `login(data)` for `POST /api/auth/login`
+- Saves the access token in `localStorage`
+- Has `logout()` for `POST /api/auth/logout`
+
+Task store:
+
+- File: `src/store/taskStore.ts`
+- Keeps `tasks`, `stats`, `isLoading`, and `error`
+- Has `fetchTasks()`, `addTask()`, `updateTask()`, `deleteTask()`, and `completeTask()`
+- Gets task data from the task API routes
+- Calculates basic stats from the task list:
+
+```ts
+stats: {
+  total,
+  todo,
+  inProgress,
+  completed
+}
+```
+
 ## Wiring Status
 
-Checked by reading the code, without running the app:
+Checked by reading the code and running `npm run build`:
 
 - Signup UI is wired to `POST /api/auth/register`.
-- Login UI is wired to `POST /api/auth/login` and redirects to `/home`.
+- Login UI uses `useAuthStore`, calls `POST /api/auth/login`, stores the access token, and redirects to `/home`.
 - Login and refresh routes set both auth cookies.
 - `/home` validates the access token and redirects to `/` when invalid.
 - `src/proxy.ts` protects `/` and `/home`.
 - `/api/auth/me`, `/api/auth/refresh`, and `/api/auth/logout` exist, but there is no frontend UI currently calling them.
-- Task create, list, read, and update API routes are wired to Zod validation and service logic.
+- Task create, list, read, update, and delete API routes are wired to Zod validation and service logic.
+- `useTaskStore` is ready for frontend task screens and can also calculate task stats.
 
 ## Project Structure
 
@@ -143,6 +183,8 @@ src/features/auth/components Auth UI components
 src/lib/                    Shared app libraries
 src/schema/                 Zod validation schemas
 src/services/               Backend service logic
+src/store/                  Zustand auth and task stores
+src/types/                  Shared frontend types
 src/utils/                  Token utilities
 app/generated/prisma/       Generated Prisma client, ignored by Git
 prisma/                     Prisma schema and migrations

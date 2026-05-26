@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { updateTaskSchema } from "@/src/schema/task.schema";
-import { getTaskById, updateTaskById } from "../../../../services/task.services";
+import {
+  deleteTaskById,
+  getTaskById,
+  updateTaskById,
+} from "../../../../services/task.services";
 import { verifyAuth } from "../../../../utils/verify.auth";
 
 type TaskRouteContext = {
@@ -118,6 +122,46 @@ export async function PATCH(req: NextRequest, { params }: TaskRouteContext) {
     return NextResponse.json(
       {
         error: getErrorMessage(error, "Something went wrong while updating task"),
+      },
+      {
+        status: getErrorStatus(error),
+      },
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest, { params }: TaskRouteContext) {
+  try {
+    const user = await verifyAuth(req);
+    const { taskId } = await params;
+
+    if (!taskId) {
+      return NextResponse.json(
+        {
+          error: "Missing task id",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    await deleteTaskById(user.id, taskId);
+
+    return NextResponse.json(
+      {
+        message: "Task deleted successfully",
+      },
+      {
+        status: 200,
+      },
+    );
+  } catch (error) {
+    console.error("DELETE TASK ERROR:", error);
+
+    return NextResponse.json(
+      {
+        error: getErrorMessage(error, "Something went wrong while deleting task"),
       },
       {
         status: getErrorStatus(error),

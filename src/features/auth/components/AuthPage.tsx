@@ -3,7 +3,9 @@
 import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { loginUser, signupUser } from "../api/authApi";
+import { useAuthStore } from "@/src/store/authStore";
+
+import { signupUser } from "../api/authApi";
 import type { LoginFormData, Message, SignupFormData } from "../types";
 import { LoginForm } from "./LoginForm";
 import { MessageAlert } from "./MessageAlert";
@@ -22,14 +24,15 @@ const emptyLoginForm: LoginFormData = {
 
 export function AuthPage() {
   const router = useRouter();
+  const { login, isLoading: isLoginLoading } = useAuthStore();
   const [signupForm, setSignupForm] = useState(emptySignupForm);
   const [loginForm, setLoginForm] = useState(emptyLoginForm);
   const [message, setMessage] = useState<Message | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSignupLoading, setIsSignupLoading] = useState(false);
 
   const handleSignup = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
+    setIsSignupLoading(true);
     setMessage(null);
 
     try {
@@ -46,21 +49,20 @@ export function AuthPage() {
         text: error instanceof Error ? error.message : "Something went wrong",
       });
     } finally {
-      setIsLoading(false);
+      setIsSignupLoading(false);
     }
   };
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
     setMessage(null);
 
     try {
-      const data = await loginUser(loginForm);
+      const user = await login(loginForm);
 
       setMessage({
         type: "success",
-        text: `Welcome back, ${data.user.name}.`,
+        text: `Welcome back, ${user.name}.`,
       });
       setLoginForm(emptyLoginForm);
       router.push("/home");
@@ -69,8 +71,6 @@ export function AuthPage() {
         type: "error",
         text: error instanceof Error ? error.message : "Something went wrong",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -95,14 +95,14 @@ export function AuthPage() {
         <div className="grid w-full gap-5 md:grid-cols-2 lg:w-1/2 lg:grid-cols-1 xl:grid-cols-2">
           <SignupForm
             formData={signupForm}
-            isLoading={isLoading}
+            isLoading={isSignupLoading}
             onChange={setSignupForm}
             onSubmit={handleSignup}
           />
 
           <LoginForm
             formData={loginForm}
-            isLoading={isLoading}
+            isLoading={isLoginLoading}
             onChange={setLoginForm}
             onSubmit={handleLogin}
           />

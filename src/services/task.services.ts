@@ -63,3 +63,15 @@ export const updateTaskById = async (
 
   return task;
 };
+
+export const deleteTaskById = async (userId: string, taskId: string) => {
+  await getTaskById(userId, taskId);
+
+  await prisma.task.delete({
+    where: {
+      id: taskId,
+    },
+  });
+
+  return true;
+};

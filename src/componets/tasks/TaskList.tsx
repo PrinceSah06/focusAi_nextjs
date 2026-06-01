@@ -1,99 +1,65 @@
 "use client";
 
-import React from 'react'
-import {useTaskStore} from "../../store/taskStore"
-import {useAuthStore} from "../../store/authStore"
-import {useState,useEffect} from 'react'
-import { Fascinate } from 'next/font/google';
-import { tr } from 'zod/v4/locales/index.js';
+import { useEffect, useState } from "react";
 
+import { useAuthStore } from "../../store/authStore";
+import { useTaskStore } from "../../store/taskStore";
+import TaskCard from "./TaskCard";
 
 export default function TaskList() {
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-
-  const [isMounted,setIsMounted]=useState<boolean>(false)
-  // 1. Subscribe to Auth Store to ensure user is logged in
+  const [isMounted, setIsMounted] = useState(false);
   const token = useAuthStore((state) => state.token);
-  const user = useAuthStore((state) => state.user);
-
-  // 2. Subscribe to Task Store pieces
   const tasks = useTaskStore((state) => state.tasks);
   const isLoading = useTaskStore((state) => state.isLoading);
   const error = useTaskStore((state) => state.error);
   const fetchTasks = useTaskStore((state) => state.fetchTasks);
-  const addTask = useTaskStore((state) => state.addTask);
 
-  // 3. Automatically fetch tasks when the user is authenticated
   useEffect(() => {
-     setIsMounted(true)
+    setIsMounted(true);
   }, []);
 
-
-
-    useEffect(()=>{
-     if ( isMounted && token) {
+  useEffect(() => {
+    if (isMounted && token) {
       fetchTasks();
     }
-  },[token,fetchTasks])
+  }, [fetchTasks, isMounted, token]);
 
   if (!isMounted) {
-    return <div className="p-4">Loading application layout...</div>;
+    return <div className="p-4">Loading tasks...</div>;
   }
 
-  // Handle protected route view (Safely runs only on the browser now)
   if (!token) {
     return <div className="p-4">Please log in to view your tasks.</div>;
   }
-
-
-
- 
-  // Handle protected route view
-  if (!token) {
-    return <div className="p-4">Please log in to view your tasks.</div>;
-  }
-
-  const handleCreateTask = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTaskTitle.trim()) return;
-    await addTask({ title: newTaskTitle });
-    setNewTaskTitle(""); // Reset input
-  };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Welcome, {user?.name || "User"}</h1>
+    <section className="space-y-4">
+      <div>
+        <p className="text-sm font-medium text-sky-600">Workspace</p>
+        <h1 className="mt-1 text-2xl font-semibold text-zinc-950 sm:text-3xl">
+          Your tasks
+        </h1>
+      </div>
 
-      {/* Add Task Form */}
-      <form onSubmit={handleCreateTask} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          placeholder="Add a new task..."
-          className="border p-2 grow rounded"
-        />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          Add
-        </button>
-      </form>
-
-      {/* State Indicators */}
-      {isLoading && <p className="text-gray-500">Loading tasks...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {/* Task List */}
-      <ul className="space-y-2">
+      {isLoading && <p className="text-sm text-zinc-500">Loading tasks...</p>}
+      {error && (
+        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+      {!isLoading && tasks.length === 0 && (
+        <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-8 text-center">
+          <p className="text-sm font-medium text-zinc-700">No tasks found</p>
+          <p className="mt-1 text-sm text-zinc-500">
+            Create a task from the form on the right.
+          </p>
+        </div>
+      )}
+      <div className="space-y-3">
         {tasks.map((task) => (
-          <li key={task.id} className="p-3 bg-gray-100 rounded flex justify-between">
-            <span>{task.title}</span>
-          
-          </li>
+          <TaskCard key={task.id} task={task} />
         ))}
-        {!isLoading && tasks.length === 0 && (
-          <p className="text-gray-400 text-center">No tasks found. Create one!</p>
-        )}
-      </ul>
-    </div>
+      </div>
+    </section>
   );
 }

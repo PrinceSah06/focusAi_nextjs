@@ -18,8 +18,11 @@ type TaskState = {
   stats: TaskStats;
   isLoading: boolean;
   error: string | null;
+  editingTask: Task | null;
   fetchTasks: () => Promise<void>;
   addTask: (task: CreateTaskInput) => Promise<void>;
+  setEditingTask: (task: Task) => void;
+  clearEditingTask: () => void;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   completeTask: (id: string) => Promise<void>;
@@ -62,6 +65,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   stats: emptyStats,
   isLoading: false,
   error: null,
+  editingTask: null,
 
   fetchTasks: async () => {
     set({ isLoading: true, error: null });
@@ -101,6 +105,14 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         isLoading: false,
       });
     }
+  },
+
+  setEditingTask: (task) => {
+    set({ editingTask: task });
+  },
+
+  clearEditingTask: () => {
+    set({ editingTask: null });
   },
 
   updateTask: async (id, updates) => {

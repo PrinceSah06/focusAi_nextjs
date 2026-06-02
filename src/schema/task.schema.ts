@@ -46,6 +46,23 @@ export const createTaskSchema = z.object({
     .optional(),
 });
 
+
+
+//===============================
+// Validate AI response schema
+//===============================
+export const AiResponseValidation = z.object({
+  start: z.string(),
+  end: z.string(),
+  taskTitle: z.string().min(1),
+  priority: z.nativeEnum(Priority),
+  energyRequired: z
+    .number()
+    .int()
+    .min(1)
+    .max(5),
+  notes: z.string(),
+}).array();
 // ==============================
 // UPDATE TASK SCHEMA
 // all fields optional
@@ -61,3 +78,6 @@ export type CreateTaskInput =
 
 export type UpdateTaskInput =
   z.infer<typeof updateTaskSchema>;
+
+export type AiResponseInput =
+  z.infer<typeof AiResponseValidation>;

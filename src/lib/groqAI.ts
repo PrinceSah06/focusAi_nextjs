@@ -1,14 +1,26 @@
 import Groq from "groq-sdk";
+import { buildSchedulePrompt } from "@/src/lib/prompts/schedulePrompt";
+import type { Task } from "../types";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-export default async  function main(text:string) {
+export default async function main(prompt: Task[]) {
+  const text = buildSchedulePrompt(prompt);
   const chatCompletion = await getGroqChatCompletion(text);
-  // Print the completion returned by the LLM.
-  console.log(chatCompletion.choices[0]?.message?.content || "");
+  const content = chatCompletion.choices[0]?.message?.content;
+
+  if (!content) {
+    throw new Error("AI returned an empty response");
+  }
+
+  try {
+    return JSON.parse(content);
+  } catch {
+    throw new Error("AI returned invalid JSON");
+  }
 }
 
-export   async function getGroqChatCompletion(text:string) {
+export async function getGroqChatCompletion(text: string) {
   return groq.chat.completions.create({
     messages: [
       {

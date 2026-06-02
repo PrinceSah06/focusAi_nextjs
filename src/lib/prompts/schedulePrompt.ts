@@ -1,19 +1,16 @@
-import type {Task} from '@/src/types/index'
+import type { Task } from '@/src/types/index';
 
-
-
-
-
-export const buildSchedulePrompt=(TASKS:Task[])=>{
- let stringTask = TASKS.map((task:Task)=>{
-   return `
+export const buildSchedulePrompt = (TASKS: Task[]) => {
+  const stringTask = TASKS.map((task: Task) => {
+    return `
 Title: ${task.title}
 Priority: ${task.priority}
 Energy Required: ${task.energyRequired}
 Estimated Minutes: ${task.estimatedMinutes}
 `
- }).join("\n\n")
-    const MasterPrompt =`You are an expert productivity coach and daily planner.
+  }).join("\n\n");
+
+  const MasterPrompt = `You are an expert productivity coach and daily planner.
 
 Your task is to create an optimized daily schedule based on the user's tasks.
 
@@ -37,13 +34,13 @@ Return this exact JSON format:
 "start": "09:00",
 "end": "10:30",
 "taskTitle": "Task Name",
-"priority": "high",
-"energy": "high",
+"priority": "HIGH",
+"energyRequired": 5,
 "notes": "Reason for placement"
 }
 ]
-`
+`;
 
-return MasterPrompt
-}
+  return MasterPrompt;
+};
 

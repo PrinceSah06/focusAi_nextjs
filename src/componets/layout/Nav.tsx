@@ -8,6 +8,7 @@ import { useAuthStore } from "../../store/authStore";
 const links = [
   { href: "/home", label: "Home" },
   { href: "/tasks", label: "Tasks" },
+  { href: "/genrate", label: "Ai Schedule" },
 ];
 
 export default function Nav() {

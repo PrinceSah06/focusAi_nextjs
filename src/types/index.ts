@@ -10,12 +10,27 @@ export type Task = {
   userId: string
   title: string
   description: string | null
-  deadline: string | null
+  deadline: string | null | Date
   priority: "LOW" | "MEDIUM" | "HIGH"
   status: "TODO" | "IN_PROGRESS" | "COMPLETED"
   energyRequired: number | null
   estimatedMinutes: number | null
-  updatedAt: string
+  updatedAt: string | Date
+}
+
+export type GeneratedScheduleItem = {
+  start: string
+  end: string
+  taskTitle: string
+  priority: "LOW" | "MEDIUM" | "HIGH"
+  energyRequired: number
+  notes: string
+}
+
+export type GenerateScheduleResponse = {
+  message: string
+  task: Task[]
+  ai: GeneratedScheduleItem[]
 }
 
 export type CreateTaskInput = {

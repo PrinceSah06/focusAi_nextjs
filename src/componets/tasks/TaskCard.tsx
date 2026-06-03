@@ -26,7 +26,7 @@ const formatLabel = (value: string) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-const formatDate = (date: string | null) => {
+const formatDate = (date: string | Date | null) => {
   if (!date) return null;
 
   return new Intl.DateTimeFormat("en", {
@@ -34,7 +34,7 @@ const formatDate = (date: string | null) => {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  }).format(new Date(date));
+  }).format(date instanceof Date ? date : new Date(date));
 };
 
 export default function TaskCard({ task }: TaskCardProps) {

@@ -26,6 +26,16 @@ const initialFormState: TaskFormState = {
   estimatedMinutes: "",
 };
 
+const formatDateTimeLocal = (date: string | Date | null) => {
+  if (!date) return "";
+
+  const parsedDate = date instanceof Date ? date : new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) return "";
+
+  return parsedDate.toISOString().slice(0, 16);
+};
+
 export default function TaskForm() {
   const [form, setForm] = useState<TaskFormState>(initialFormState);
   const [isMounted, setIsMounted] = useState(false);
@@ -52,7 +62,7 @@ export default function TaskForm() {
     setForm({
       title: editingTask.title,
       description: editingTask.description || "",
-      deadline: editingTask.deadline || "",
+      deadline: formatDateTimeLocal(editingTask.deadline),
       priority: editingTask.priority,
       status: editingTask.status,
       energyRequired: editingTask.energyRequired?.toString() || "",

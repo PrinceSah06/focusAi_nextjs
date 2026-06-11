@@ -1,16 +1,25 @@
-"use client";
-
 import type { Task } from "../../types";
 import { useTaskStore } from "../../store/taskStore";
+
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type TaskCardProps = {
   task: Task;
 };
 
 const priorityStyles = {
-  LOW: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  MEDIUM: "bg-amber-50 text-amber-700 ring-amber-200",
-  HIGH: "bg-rose-50 text-rose-700 ring-rose-200",
+  LOW: "bg-emerald-50 text-emerald-700",
+  MEDIUM: "bg-amber-50 text-amber-700",
+  HIGH: "bg-rose-50 text-rose-700",
 };
 
 const statusStyles = {
@@ -41,62 +50,73 @@ export default function TaskCard({ task }: TaskCardProps) {
   const completeTask = useTaskStore((state) => state.completeTask);
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const setEditingTask = useTaskStore((state) => state.setEditingTask);
+
   const deadline = formatDate(task.deadline);
 
   return (
-    <article className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-sky-200 hover:shadow-md">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-zinc-950">{task.title}</h2>
-          {task.description && (
-            <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-600">
-              {task.description}
-            </p>
-          )}
+    <Card className="transition hover:shadow-md">
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle>{task.title}</CardTitle>
+
+            {task.description && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                {task.description}
+              </p>
+            )}
+          </div>
+
+          <Badge className={priorityStyles[task.priority]}>
+            {formatLabel(task.priority)}
+          </Badge>
         </div>
+      </CardHeader>
 
-        <span
-          className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${priorityStyles[task.priority]}`}
-        >
-          {formatLabel(task.priority)}
-        </span>
-      </div>
+      <CardContent>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge className={statusStyles[task.status]}>
+            {formatLabel(task.status)}
+          </Badge>
 
-      <div className="mt-4 grid gap-2 text-sm text-zinc-600 sm:grid-cols-3">
-        <span className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[task.status]}`}>
-          {formatLabel(task.status)}
-        </span>
-        <span>{deadline ? `Due ${deadline}` : "No deadline"}</span>
-        <span>
-          {task.estimatedMinutes ? `${task.estimatedMinutes} min` : "No estimate"}
-        </span>
-      </div>
+          <Badge variant="outline">
+            {deadline ? `Due ${deadline}` : "No deadline"}
+          </Badge>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+          <Badge variant="outline">
+            {task.estimatedMinutes
+              ? `${task.estimatedMinutes} min`
+              : "No estimate"}
+          </Badge>
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex flex-wrap gap-2">
         {task.status !== "COMPLETED" && (
-          <button
-            type="button"
+          <Button
+            size="sm"
             onClick={() => completeTask(task.id)}
-            className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
           >
             Complete
-          </button>
+          </Button>
         )}
-        <button
-          type="button"
+
+        <Button
+          size="sm"
+          variant="secondary"
           onClick={() => setEditingTask(task)}
-          className="rounded-md border border-sky-300 bg-sky-50 px-3 py-2 text-sm font-medium text-sky-700 transition hover:bg-sky-100"
         >
           Edit
-        </button>
-        <button
-          type="button"
+        </Button>
+
+        <Button
+          size="sm"
+          variant="destructive"
           onClick={() => deleteTask(task.id)}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
         >
           Delete
-        </button>
-      </div>
-    </article>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

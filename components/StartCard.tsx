@@ -6,27 +6,18 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
+import type { Stat } from "@/src/app/(dashboard)/demodata";
 
-interface StatsCardProps {
-  title: string;
-  value: number | string;
-  description?: string;
-}
-
-const StatsCard = ({ title, value, description }: StatsCardProps) => {
+const StartCard = ({ title, value, description }: Stat) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-
-      {description && <CardDescription>{description}</CardDescription>}
-
+        {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
-
       <CardContent className="text-3xl font-bold">{value}</CardContent>
-
     </Card>
   );
 };
 
-export default StatsCard;
+export default StartCard;

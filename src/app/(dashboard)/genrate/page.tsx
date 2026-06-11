@@ -1,7 +1,7 @@
 "use client";
 
 import AiSummary from "@/src/componets/ai/AiSummary.Pannel";
-import Nav from "../../../componets/layout/Nav"
+import Nav from "../../../../components/layout/Nav"
 
 
 const page = () => {

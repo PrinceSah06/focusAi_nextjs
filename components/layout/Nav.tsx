@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../src/store/authStore";
+import MobileSidebar from "./MobileSidebar";
 
 const links = [
   { href: "/home", label: "Home" },
@@ -23,8 +24,11 @@ export default function Nav() {
   };
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 backdrop-blur">  
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="md:hidden">
+  <MobileSidebar/>
+</div>
         <Link href="/home" className="flex items-center gap-2">
           <span className="grid size-9 place-items-center rounded-md bg-sky-600 text-sm font-bold text-white">
             F
@@ -32,7 +36,7 @@ export default function Nav() {
           <span className="text-base font-semibold text-zinc-950">FocusAI</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className=" items-center gap-2 hidden md:flexe ">
           {links.map((link) => {
             const isActive = pathname === link.href;
 

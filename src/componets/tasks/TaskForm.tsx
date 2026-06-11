@@ -5,7 +5,11 @@ import { type FormEvent, useEffect, useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { useTaskStore } from "../../store/taskStore";
 import type { CreateTaskInput } from "../../types";
-
+import {CardAction,Card,CardContent,CardDescription,CardFooter,CardHeader,CardTitle} from "@/components/ui/card"
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger , SelectContent,SelectItem,SelectScrollDownButton,SelectValue,} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 type TaskFormState = {
   title: string;
   description: string;
@@ -114,147 +118,224 @@ export default function TaskForm() {
   };
 
   return (
-    <section className="w-full">
-      <div className="mb-6">
-        <p className="text-sm font-medium text-sky-600">
-          Welcome, {user?.name || "User"}
-        </p>
-        <h2 className="mt-1 text-xl font-semibold text-zinc-950 sm:text-2xl">
-          {editingTask ? "Edit task" : "Create a detailed task"}
-        </h2>
-      </div>
+   <section className="w-full">
+  <div className="mb-6">
+    <p className="text-sm font-medium text-sky-600">
+      Welcome, {user?.name || "User"}
+    </p>
 
+    <h2 className="mt-1 text-2xl font-semibold">
+      {editingTask ? "Edit Task" : "Create Task"}
+    </h2>
+  </div>
+
+  <Card>
+    <CardHeader>
+      <CardTitle>
+        {editingTask ? "Edit Task" : "Create Task"}
+      </CardTitle>
+
+      <CardDescription>
+        Create and manage your tasks
+      </CardDescription>
+    </CardHeader>
+
+    <CardContent>
       <form
         onSubmit={handleCreateTask}
-        className="grid gap-5 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2"
+        className="grid gap-4 md:grid-cols-2"
       >
-        <label className="grid gap-2 sm:col-span-2">
-          <span className="text-sm font-medium text-zinc-800">Title</span>
-          <input
-            type="text"
+        {/* Title */}
+        <div className="grid gap-2 md:col-span-2">
+          <label className="text-sm font-medium">
+            Title
+          </label>
+
+          <Input
             value={form.title}
-            onChange={(e) => updateForm("title", e.target.value)}
-            placeholder="Write the task title"
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            minLength={3}
-            maxLength={100}
+            onChange={(e) =>
+              updateForm("title", e.target.value)
+            }
+            placeholder="Write task title"
             required
           />
-        </label>
+        </div>
 
-        <label className="grid gap-2 sm:col-span-2">
-          <span className="text-sm font-medium text-zinc-800">
+        {/* Description */}
+        <div className="grid gap-2 md:col-span-2">
+          <label className="text-sm font-medium">
             Description
-          </span>
-          <textarea
+          </label>
+
+          <Textarea
             value={form.description}
-            onChange={(e) => updateForm("description", e.target.value)}
-            placeholder="Add notes, context, or acceptance details"
-            className="min-h-28 w-full resize-y rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            maxLength={1000}
+            onChange={(e) =>
+              updateForm("description", e.target.value)
+            }
+            placeholder="Add notes..."
           />
-        </label>
+        </div>
 
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-zinc-800">Priority</span>
-          <select
+        {/* Priority */}
+        <div className="grid gap-2">
+          <label className="text-sm font-medium">
+            Priority
+          </label>
+
+          <Select
             value={form.priority}
-            onChange={(e) => updateForm("priority", e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            onValueChange={(value) =>
+              updateForm("priority", value)
+            }
           >
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
-          </select>
-        </label>
+            <SelectTrigger>
+              <SelectValue placeholder="Priority" />
+            </SelectTrigger>
 
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-zinc-800">Status</span>
-          <select
+            <SelectContent>
+              <SelectItem value="LOW">
+                Low
+              </SelectItem>
+
+              <SelectItem value="MEDIUM">
+                Medium
+              </SelectItem>
+
+              <SelectItem value="HIGH">
+                High
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status */}
+        <div className="grid gap-2">
+          <label className="text-sm font-medium">
+            Status
+          </label>
+
+          <Select
             value={form.status}
-            onChange={(e) => updateForm("status", e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            onValueChange={(value) =>
+              updateForm("status", value)
+            }
           >
-            <option value="TODO">Todo</option>
-            <option value="IN_PROGRESS">In progress</option>
-            <option value="COMPLETED">Completed</option>
-          </select>
-        </label>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
 
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-zinc-800">Deadline</span>
-          <input
+            <SelectContent>
+              <SelectItem value="TODO">
+                Todo
+              </SelectItem>
+
+              <SelectItem value="IN_PROGRESS">
+                In Progress
+              </SelectItem>
+
+              <SelectItem value="COMPLETED">
+                Completed
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Deadline */}
+        <div className="grid gap-2">
+          <label className="text-sm font-medium">
+            Deadline
+          </label>
+
+          <Input
             type="datetime-local"
             value={form.deadline}
-            onChange={(e) => updateForm("deadline", e.target.value)}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+            onChange={(e) =>
+              updateForm("deadline", e.target.value)
+            }
           />
-        </label>
+        </div>
 
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-zinc-800">
-            Energy required
-          </span>
-          <input
+        {/* Energy Required */}
+        <div className="grid gap-2">
+          <label className="text-sm font-medium">
+            Energy Required
+          </label>
+
+          <Input
             type="number"
-            value={form.energyRequired}
-            onChange={(e) => updateForm("energyRequired", e.target.value)}
-            placeholder="1 to 5"
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             min={1}
             max={5}
+            value={form.energyRequired}
+            onChange={(e) =>
+              updateForm(
+                "energyRequired",
+                e.target.value
+              )
+            }
+            placeholder="1 - 5"
           />
-        </label>
+        </div>
 
-        <label className="grid gap-2 sm:col-span-2">
-          <span className="text-sm font-medium text-zinc-800">
-            Estimated minutes
-          </span>
-          <input
+        {/* Estimated Minutes */}
+        <div className="grid gap-2 md:col-span-2">
+          <label className="text-sm font-medium">
+            Estimated Minutes
+          </label>
+
+          <Input
             type="number"
-            value={form.estimatedMinutes}
-            onChange={(e) => updateForm("estimatedMinutes", e.target.value)}
-            placeholder="Example: 45"
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             min={1}
+            value={form.estimatedMinutes}
+            onChange={(e) =>
+              updateForm(
+                "estimatedMinutes",
+                e.target.value
+              )
+            }
+            placeholder="Example: 45"
           />
-        </label>
+        </div>
 
+        {/* Error */}
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 sm:col-span-2">
+          <p className="rounded-md bg-red-50 p-3 text-sm text-red-600 md:col-span-2">
             {error}
           </p>
         )}
 
-        <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row">
-          <button
+        {/* Buttons */}
+        <div className="flex gap-2 md:col-span-2">
+          <Button
             type="submit"
             disabled={isLoading}
-            className="flex-1 rounded-md bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+            className="flex-1"
           >
             {isLoading
               ? editingTask
                 ? "Updating..."
                 : "Creating..."
               : editingTask
-              ? "Update task"
-              : "Create task"}
-          </button>
+              ? "Update Task"
+              : "Create Task"}
+          </Button>
 
           {editingTask && (
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => {
                 clearEditingTask();
                 setForm(initialFormState);
               }}
-              className="flex-1 rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100"
             >
               Cancel
-            </button>
+            </Button>
           )}
         </div>
       </form>
-    </section>
+    </CardContent>
+  </Card>
+</section>
+
   );
 }

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-import Nav from "@/src/componets/layout/Nav";
+import Nav from "@/components/layout/Nav";
 import { verifyAccessToken } from "@/src/utils/token.utils";
 
 export default async function HomePage() {

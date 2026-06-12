@@ -11,6 +11,7 @@ const Sidebar = () => {
   const links = [
     { href: "/home", label: "Home", icon: CheckSquare },
     { href: "/tasks", label: "Tasks", icon: CheckSquare },
+    { href: "/dashboard", label: "Dashboard", icon: CheckSquare },
     { href: "/schedule", label: "Schedule", icon: CheckSquare },
     { href: "/stats", label: "Stats", icon: CheckSquare },
   ];

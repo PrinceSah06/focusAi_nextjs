@@ -1,3 +1,5 @@
+import { number } from "zod";
+
 export type User = {
   id: string
   name: string
@@ -19,13 +21,13 @@ export type Task = {
 }
 
 export type GeneratedScheduleItem = {
-  start: string
-  end: string
-  taskTitle: string
-  priority: "LOW" | "MEDIUM" | "HIGH"
-  energyRequired: number
-  notes: string
-}
+  start: string;
+  end: string;
+  taskTitle: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  energyRequired: number |string;
+  notes?: string;
+}; 
 
 export type GenerateScheduleResponse = {
   message: string

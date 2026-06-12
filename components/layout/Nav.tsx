@@ -36,7 +36,7 @@ export default function Nav() {
           <span className="text-base font-semibold text-zinc-950">FocusAI</span>
         </Link>
 
-        <div className=" items-center gap-2 hidden md:flexe ">
+        <div className=" items-center gap-2 hidden md:flex ">
           {links.map((link) => {
             const isActive = pathname === link.href;
 

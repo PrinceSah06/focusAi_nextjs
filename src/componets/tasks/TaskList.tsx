@@ -6,7 +6,15 @@ import { useAuthStore } from "../../store/authStore";
 import { useTaskStore } from "../../store/taskStore";
 import TaskCard from "./TaskCard";
 
-export default function TaskList() {
+type TaskListProps = {
+  search: string;
+  filter: string;
+};
+
+export default function TaskList({
+  search,
+  filter,
+}: TaskListProps) {
   const [isMounted, setIsMounted] = useState(false);
   const token = useAuthStore((state) => state.token);
   const tasks = useTaskStore((state) => state.tasks);
@@ -24,6 +32,24 @@ export default function TaskList() {
     }
   }, [fetchTasks, isMounted, token]);
 
+  const filteredTasks = tasks.filter((task) => {
+  const matchesSearch =
+    task.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+  const matchesFilter =
+    filter === "ALL"
+      ? true
+      : filter === "Todo"
+      ? task.status === "TODO"
+      : filter === "In Progress"
+      ? task.status === "IN_PROGRESS"
+      : task.status === "COMPLETED";
+
+  return matchesSearch && matchesFilter;
+});
+
   if (!isMounted) {
     return <div className="p-4">Loading tasks...</div>;
   }
@@ -34,12 +60,12 @@ export default function TaskList() {
 
   return (
     <section className="space-y-4">
-      <div>
+      {/* <div>
         <p className="text-sm font-medium text-sky-600">Workspace</p>
         <h1 className="mt-1 text-2xl font-semibold text-zinc-950 sm:text-3xl">
           Your tasks
         </h1>
-      </div>
+      </div> */}
 
       {isLoading && <p className="text-sm text-zinc-500">Loading tasks...</p>}
       {error && (
@@ -47,7 +73,7 @@ export default function TaskList() {
           {error}
         </p>
       )}
-      {!isLoading && tasks.length === 0 && (
+      {!isLoading && filteredTasks.length === 0 && (
         <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-8 text-center">
           <p className="text-sm font-medium text-zinc-700">No tasks found</p>
           <p className="mt-1 text-sm text-zinc-500">
@@ -56,7 +82,7 @@ export default function TaskList() {
         </div>
       )}
       <div className="space-y-3">
-        {tasks.map((task) => (
+        {filteredTasks.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}
       </div>

@@ -1,21 +1,39 @@
 "use client";
 import StatsCard from "@/components/StatsCard";
 import TaskCard from "@/components/TaskCard";
-import {
-  mockSchedule,
-} from "@/src/app/(dashboard)/demodata";
 import PageHeader from "@/components/PageHeader";
 import SchedulePreview from "@/components/SchedulePreview";
 import { useTaskStore } from "@/src/store/taskStore";
 import { useEffect } from "react";
+import { useGenTaskStore } from "@/src/store/aiGenrateStore";
 const page = () => {
   const tasks = useTaskStore((state) => state.tasks);
   const fetchTasks = useTaskStore((state) => state.fetchTasks);
   const stats = useTaskStore((state) => state.stats);
+  const isLoading = useTaskStore((state) => state.isLoading);
 
+  const ai = useGenTaskStore((state) => state.ai);
+
+  const generateSchedule = useGenTaskStore((state) => state.generateSchedule);
+
+  const aiLoading = useGenTaskStore(
+  (state) => state.isLoading
+);
+console.log(ai); 
+
+  useEffect(() => {
+    generateSchedule();
+  }, [generateSchedule]);
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  if (isLoading  || aiLoading) {
+    return <p>Loading dashboard...</p>;
+  }
+
+
+
 
   return (
     <div className="mx-auto max-w-7xl py-6 px-6 space-y-8">
@@ -26,42 +44,47 @@ const page = () => {
       />
       <PageHeader title="Stats" />
 
-<section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-  <StatsCard id="1" title="Total Tasks" value={stats.total} />
-  <StatsCard id="2" title="Todo" value={stats.todo} />
-  <StatsCard id="3" title="In Progress" value={stats.inProgress} />
-  <StatsCard id="4" title="Completed" value={stats.completed} />
-</section>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatsCard id="1" title="Total Tasks" value={stats.total} />
+        <StatsCard id="2" title="Todo" value={stats.todo} />
+        <StatsCard id="3" title="In Progress" value={stats.inProgress} />
+        <StatsCard id="4" title="Completed" value={stats.completed} />
+      </section>
 
-
-  
-      <PageHeader title="Tasks"
-       description="AI-Generated Plan for your day" />
-      <section
-       className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {tasks.slice(0,6).map((task) => (
-          <TaskCard
-            key={task.id}
-            title={task.title}
-            priority={task.priority}
-            status={task.status}
-            deadline={task.deadline}
-          />
-        ))}
+      <PageHeader title="Tasks" description="AI-Generated Plan for your day" />
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {tasks.length === 0 ? (
+          <p>No tasks found.</p>
+        ) : (
+          tasks
+            .slice(0, 6)
+            .map((task) => (
+              <TaskCard
+                key={task.id}
+                title={task.title}
+                priority={task.priority}
+                status={task.status}
+                deadline={task.deadline}
+              />
+            ))
+        )}
       </section>
       <PageHeader title="Preview" description="Task preview  form ai" />
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {mockSchedule.map((task) => (
-          <SchedulePreview
-            end={task.end}
-            energy="HIGH"
-            start={task.start}
-            taskTitle={task.taskTitle}
-            key={task.taskTitle}
-          />
-        ))}
-      </section>
+<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+  {ai.length === 0 ? (
+    <p>No schedule generated yet.</p>
+  ) : (
+    ai.map((task) => (
+      <SchedulePreview
+        end={task.end}
+       energy={task.energyRequired}
+        start={task.start}
+        taskTitle={task.taskTitle}
+        key={task.taskTitle}
+      />
+    ))
+  )}
+</section>
     </div>
   );
 };

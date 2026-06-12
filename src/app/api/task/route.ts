@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { createTaskSchema } from "../../../schema/task.schema";
-import { createTask, getAllTasks } from "../../../services/task.services";
+import { createTask, getAllTasks, updateTaskById } from "../../../services/task.services";
 import { verifyAuth } from "../../../utils/verify.auth";
 
 const getErrorMessage = (error: unknown, fallback: string) =>
@@ -89,3 +89,20 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+// export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}>}) {
+
+//   try {
+
+//     const user = await verifyAuth(req);
+
+//     const id = await params;
+//     const body = await req.json();
+
+//     const task = await updateTaskBy(id,user.id,body)
+    
+//   } catch (error) {
+    
+//   }
+  
+// }

@@ -62,7 +62,7 @@ export interface TimeBlock {
   start: string;
   end: string;
   taskTitle: string;
-  energy: "LOW" | "MEDIUM" | "HIGH";
+  energy: string |number 
 }
 
 export const mockSchedule: TimeBlock[] = [

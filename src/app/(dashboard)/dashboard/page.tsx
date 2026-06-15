@@ -24,9 +24,12 @@ console.log(ai);
   useEffect(() => {
     generateSchedule();
   }, [generateSchedule]);
-  useEffect(() => {
+
+useEffect(() => {
+  if (tasks.length === 0) {
     fetchTasks();
-  }, [fetchTasks]);
+  }
+}, [fetchTasks, tasks.length]);
 
   if (isLoading  || aiLoading) {
     return <p>Loading dashboard...</p>;

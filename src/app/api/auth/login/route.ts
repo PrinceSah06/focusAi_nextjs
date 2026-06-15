@@ -46,13 +46,7 @@ export async function POST(req: Request) {
 
     const cookiesStore = await cookies()
 
- cookiesStore.set("accessToken", accessToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: isProduction,
-      path: "/",
-      maxAge: expiresInToSeconds(accessTokenExpiresIn, 15 * 60),
-    });
+
 
     cookiesStore.set("refreshToken", refreshToken, {
       httpOnly: true,

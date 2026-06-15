@@ -74,25 +74,72 @@ export function AuthPage() {
     }
   };
 
-  return (
-    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-950 sm:px-6 lg:px-8">
-      <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl flex-col justify-center gap-8 lg:flex-row lg:items-center">
-        <div className="w-full lg:w-1/2">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-emerald-700">
-            FocusAI Auth
-          </p>
-          <h1 className="max-w-xl text-4xl font-bold leading-tight sm:text-5xl">
-            Simple signup and login for your productivity app.
-          </h1>
-          <p className="mt-5 max-w-lg text-base leading-7 text-slate-600">
-            Create your account, login, and receive secure cookies from your
-            backend auth API. The page uses basic React state and Tailwind only.
-          </p>
+return (
+  <main className="min-h-screen bg-slate-100 px-4 py-8">
+    <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col gap-10 lg:flex-row lg:items-center">
+      
+      {/* Left Side */}
+      <div className="w-full lg:w-1/2">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-emerald-600">
+          FocusAI
+        </p>
 
-          {message && <MessageAlert message={message} />}
+        <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
+          Plan Smarter. Work Better.
+        </h1>
+
+        <p className="mt-5 max-w-xl text-lg text-slate-600">
+          Organize your tasks, generate AI-powered schedules,
+          and stay productive throughout the day.
+        </p>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+            <h3 className="font-semibold text-slate-900">
+              Demo Account
+            </h3>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Anyone can explore FocusAI using the demo account.
+            </p>
+
+            <div className="mt-4 rounded-lg bg-slate-100 p-3 text-sm">
+              <p>
+                <span className="font-medium">Email:</span>{" "}
+                demo@focusai.com
+              </p>
+
+              <p>
+                <span className="font-medium">Password:</span>{" "}
+                Demo123@
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+            <h3 className="font-semibold text-slate-900">
+              Features
+            </h3>
+
+            <ul className="mt-3 space-y-2 text-sm text-slate-600">
+              <li>✓ Task Management</li>
+              <li>✓ AI Schedule Generation</li>
+              <li>✓ Productivity Analytics</li>
+              <li>✓ Smart Prioritization</li>
+            </ul>
+          </div>
         </div>
 
-        <div className="grid w-full gap-5 md:grid-cols-2 lg:w-1/2 lg:grid-cols-1 xl:grid-cols-2">
+        {message && (
+          <div className="mt-6">
+            <MessageAlert message={message} />
+          </div>
+        )}
+      </div>
+
+      {/* Right Side */}
+      <div className="w-full lg:w-1/2">
+        <div className="grid gap-5 xl:grid-cols-2">
           <SignupForm
             formData={signupForm}
             isLoading={isSignupLoading}
@@ -107,7 +154,8 @@ export function AuthPage() {
             onSubmit={handleLogin}
           />
         </div>
-      </section>
-    </main>
-  );
+      </div>
+    </section>
+  </main>
+);
 }

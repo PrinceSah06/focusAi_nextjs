@@ -9,29 +9,39 @@ import ca from "zod/v4/locales/ca.cjs";
 export async function POST(req: NextRequest) {
   try {
     const user = await verifyAuth(req);
+    if (!user) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
     const allTask = await getAllTasks(user.id);
     const ai = await main(allTask);
 
-    await storeInSchedulDb(user.id,ai)
+    await storeInSchedulDb(user.id, ai)
 
     return NextResponse.json({
       message: "schedule generated",
-      task: allTask,
+   
       ai,
     });
   } catch (error) {
     console.log("error while passing data ai [gen/route.ts]", error);
 
-    return NextResponse.json({
-      message: "false",
-      error,
-    });
+    return NextResponse.json(
+      {
+        message: "Failed to generate schedule",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }
 
 
-export async function GET(req:NextRequest) {
-   try{
+export async function GET(req: NextRequest) {
+  try {
     const user = await verifyAuth(req)
 
     const schedules = await taskFromSchedulDB(user.id);
@@ -39,9 +49,11 @@ export async function GET(req:NextRequest) {
     return NextResponse.json({
       schedules
     })
-   }catch(e){return NextResponse.json(
+  } catch (e) {
+    return NextResponse.json(
       { error: "Failed to fetch schedules" },
       { status: 500 }
-    );}
-  
+    );
+  }
+
 }

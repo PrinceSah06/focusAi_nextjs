@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Priority, Status } from "@/src/generated/prisma/enums";
+import { Priority, Status } from "@prisma/client";
 
 // ==============================
 // CREATE TASK SCHEMA

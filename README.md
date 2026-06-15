@@ -186,7 +186,6 @@ src/services/               Backend service logic
 src/store/                  Zustand auth and task stores
 src/types/                  Shared frontend types
 src/utils/                  Token utilities
-app/generated/prisma/       Generated Prisma client, ignored by Git
 prisma/                     Prisma schema and migrations
 public/                     Static assets
 ```
@@ -210,13 +209,7 @@ Current enums:
 
 ## Prisma Notes
 
-The Prisma client is generated into:
-
-```text
-app/generated/prisma
-```
-
-That generated folder is ignored by Git. Regenerate it with:
+The Prisma client is generated into the default location under `node_modules/@prisma/client`. Regenerate it with:
 
 ```bash
 npx prisma generate

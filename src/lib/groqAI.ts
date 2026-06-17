@@ -4,9 +4,9 @@ import type { Task } from "../types";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-export default async function main(prompt: Task[]) {
-  const text = buildSchedulePrompt(prompt);
-  const chatCompletion = await getGroqChatCompletion(text);
+export async function runAI(prompt: string) {
+  const chatCompletion = await getGroqChatCompletion(prompt);
+
   const content = chatCompletion.choices[0]?.message?.content;
 
   if (!content) {

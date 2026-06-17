@@ -3,12 +3,12 @@ import { verifyAuth } from "@/src/utils/verify.auth";
 import { NextRequest, NextResponse } from "next/server";
 export async function GET(
   req: NextRequest,
-  { params }: { params: { date: string } }
+  { params }: { params: Promise<{ date: string }> }
 ){
 
     const user = await verifyAuth(req);
 
-    const date = params.date;
+    const { date } = await params;
 
         if(!user){
         return NextResponse.json('Invalid User')

@@ -1,13 +1,10 @@
 "use client";
 
 import AiSummary from "@/src/componets/ai/AiSummary.Pannel";
-import Nav from "../../../../components/layout/Nav"
-
 
 const page = () => {
   return (
     <div className="min-h-screen bg-zinc-50">
-      <Nav/>
       <AiSummary />
     </div>
   );

@@ -13,26 +13,21 @@ const page = () => {
   const isLoading = useTaskStore((state) => state.isLoading);
 
   const ai = useGenTaskStore((state) => state.ai);
-
-  const generateSchedule = useGenTaskStore((state) => state.generateSchedule);
-
-  const aiLoading = useGenTaskStore(
-  (state) => state.isLoading
-);
-console.log(ai); 
+  const fetchTodaySchedule = useGenTaskStore((state) => state.fetchTodaySchedule);
+  const aiLoading = useGenTaskStore((state) => state.isLoading);
 
   useEffect(() => {
-    generateSchedule();
-  }, [generateSchedule]);
+    fetchTodaySchedule();
+  }, [fetchTodaySchedule]);
 
-useEffect(() => {
-  if (tasks.length === 0) {
-    fetchTasks();
-  }
-}, [fetchTasks, tasks.length]);
+  useEffect(() => {
+    if (tasks.length === 0) {
+      fetchTasks();
+    }
+  }, [fetchTasks, tasks.length]);
 
-  if (isLoading  || aiLoading) {
-    return <p>Loading dashboard...</p>;
+  if (isLoading || aiLoading) {
+    return <p className="p-6 text-sm text-zinc-500">Loading dashboard...</p>;
   }
 
 

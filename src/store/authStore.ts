@@ -24,6 +24,7 @@ type AuthState = {
   error: string | null;
   login: (data: LoginData) => Promise<User>;
   logout: () => Promise<void>;
+  fetchMe: () => Promise<void>;
 };
 
 const savedToken =
@@ -61,6 +62,24 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
 
       throw new Error(message);
+    }
+  },
+
+  fetchMe: async () => {
+    const savedToken = localStorage.getItem("accessToken");
+    if (!savedToken) return;
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.get<{ user: User }>("/auth/me");
+      set({
+        user: response.data.user,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({
+        error: "Failed to load user profile",
+        isLoading: false,
+      });
     }
   },
 

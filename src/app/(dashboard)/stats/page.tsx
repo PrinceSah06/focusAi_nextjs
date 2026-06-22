@@ -26,7 +26,7 @@ const page = () => {
     0,
   );
   const completionRate =
-    totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+    totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100)+" %";
 
   const focusHours = Math.round(totalMinutes / 60);
   return (
@@ -41,7 +41,7 @@ const page = () => {
         <Stats id="3" title="Pending Tasks" value={pendingTasks} />
         <Stats id="3" title="In Progress Tasks" value={inProgressTasks} />
         <Stats id="4" title="Focus Hours" value={focusHours} />
-        <Stats id="5" title="Completion Rate " value={completionRate} />
+        <Stats id="5" title="Completion Rate " value={completionRate }  />
       </div>
     </div>
   );

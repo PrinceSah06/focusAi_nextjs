@@ -1,19 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { CheckSquare } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { 
+  Home, 
+  ClipboardList, 
+  LayoutDashboard, 
+  Calendar, 
+  Sparkles, 
+  TrendingUp 
+} from "lucide-react";
 import { Button } from "../ui/button";
+import { useAuthStore } from "../../src/store/authStore";
 
 const Sidebar = () => {
   const path = usePathname();
+  const router = useRouter();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   const links = [
-    { href: "/home", label: "Home", icon: CheckSquare },
-    { href: "/tasks", label: "Tasks", icon: CheckSquare },
-    { href: "/dashboard", label: "Dashboard", icon: CheckSquare },
-    { href: "/schedule", label: "Schedule", icon: CheckSquare },
-    { href: "/stats", label: "Stats", icon: CheckSquare },
+    { href: "/home", label: "Home", icon: Home },
+    { href: "/tasks", label: "Tasks", icon: ClipboardList },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/schedule", label: "AI Timeline", icon: Calendar },
+    { href: "/genrate", label: "AI Generator", icon: Sparkles },
+    { href: "/stats", label: "Statistics", icon: TrendingUp },
   ];
 
   return (
@@ -61,7 +77,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <Button variant="destructive">
+      <Button variant="destructive" onClick={handleLogout}>
         Logout
       </Button>
     </aside>

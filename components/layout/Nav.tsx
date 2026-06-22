@@ -9,7 +9,10 @@ import MobileSidebar from "./MobileSidebar";
 const links = [
   { href: "/home", label: "Home" },
   { href: "/tasks", label: "Tasks" },
-  { href: "/genrate", label: "Ai Schedule" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/schedule", label: "AI Timeline" },
+  { href: "/genrate", label: "AI Generator" },
+  { href: "/stats", label: "Statistics" },
 ];
 
 export default function Nav() {

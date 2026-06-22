@@ -10,12 +10,37 @@ import type {
   Task,
 } from "../types";
 
+type AiUsage = {
+  used: number;
+  limit: number;
+  remaining: number;
+};
+
+type DailySummary = {
+  summary: string;
+  productivityLevel: "LOW" | "MEDIUM" | "HIGH";
+  suggestion: string;
+};
+
+type ReprioritizeItem = {
+  title: string;
+  newPriority: "LOW" | "MEDIUM" | "HIGH";
+  reason: string;
+};
+
 type AiGenerateState = {
   tasks: Task[];
   ai: GeneratedScheduleItem[];
+  aiUsage: AiUsage | null;
+  dailySummary: DailySummary | null;
+  reprioritizeList: ReprioritizeItem[] | null;
   isLoading: boolean;
   error: string | null;
   generateSchedule: () => Promise<void>;
+  fetchTodaySchedule: () => Promise<void>;
+  fetchAiUsage: () => Promise<void>;
+  generateDailySummary: () => Promise<void>;
+  generateReprioritize: () => Promise<void>;
   clearSchedule: () => void;
 };
 
@@ -31,6 +56,9 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 export const useGenTaskStore = create<AiGenerateState>((set) => ({
   tasks: [],
   ai: [],
+  aiUsage: null,
+  dailySummary: null,
+  reprioritizeList: null,
   isLoading: false,
   error: null,
 
@@ -43,10 +71,13 @@ export const useGenTaskStore = create<AiGenerateState>((set) => ({
       );
 
       set({
-        tasks: response.data.task,
         ai: response.data.ai,
         isLoading: false,
       });
+      
+      // Refresh usage stats
+      const usageRes = await api.get<AiUsage>("/ai/usage");
+      set({ aiUsage: usageRes.data });
     } catch (error) {
       set({
         error: getErrorMessage(error, "Failed to generate schedule"),
@@ -55,7 +86,79 @@ export const useGenTaskStore = create<AiGenerateState>((set) => ({
     }
   },
 
+  fetchTodaySchedule: async () => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await api.get<any>("/schedule/today");
+      set({
+        ai: response.data.blocks || [],
+        isLoading: false,
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        set({
+          ai: [],
+          isLoading: false,
+          error: null,
+        });
+        return;
+      }
+      set({
+        error: getErrorMessage(error, "Failed to fetch today's schedule"),
+        isLoading: false,
+      });
+    }
+  },
+
+  fetchAiUsage: async () => {
+    try {
+      const response = await api.get<AiUsage>("/ai/usage");
+      set({ aiUsage: response.data });
+    } catch (error) {
+      console.error("Failed to fetch AI usage:", error);
+    }
+  },
+
+  generateDailySummary: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.post<{ message: string; data: DailySummary }>("/ai/daily-summary");
+      set({
+        dailySummary: response.data.data,
+        isLoading: false,
+      });
+      // Refresh usage stats
+      const usageRes = await api.get<AiUsage>("/ai/usage");
+      set({ aiUsage: usageRes.data });
+    } catch (error) {
+      set({
+        error: getErrorMessage(error, "Failed to generate daily summary"),
+        isLoading: false,
+      });
+    }
+  },
+
+  generateReprioritize: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.post<{ message: string; data: { tasks: ReprioritizeItem[] } }>("/ai/repriortize");
+      set({
+        reprioritizeList: response.data.data.tasks,
+        isLoading: false,
+      });
+      // Refresh usage stats
+      const usageRes = await api.get<AiUsage>("/ai/usage");
+      set({ aiUsage: usageRes.data });
+    } catch (error) {
+      set({
+        error: getErrorMessage(error, "Failed to generate reprioritization list"),
+        isLoading: false,
+      });
+    }
+  },
+
   clearSchedule: () => {
-    set({ tasks: [], ai: [], error: null });
+    set({ tasks: [], ai: [], aiUsage: null, dailySummary: null, reprioritizeList: null, error: null });
   },
 }));

@@ -44,9 +44,15 @@ export async function POST(req: Request) {
 
     const isProduction = process.env.NODE_ENV === "production";
 
-    const cookiesStore = await cookies()
+    const cookiesStore = await cookies();
 
-
+    cookiesStore.set("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: isProduction,
+      path: "/",
+      maxAge: expiresInToSeconds(accessTokenExpiresIn, 15 * 60),
+    });
 
     cookiesStore.set("refreshToken", refreshToken, {
       httpOnly: true,

@@ -1,245 +1,170 @@
-# FocusAI Next.js
+# FocusAI — Intelligent Productivity & Daily Schedule Planner
 
-FocusAI is a Next.js app with signup, login, JWT access tokens, refresh token rotation, Prisma, PostgreSQL, and a Tailwind frontend.
+FocusAI is an industry-grade, full-stack productivity workspace that combines task management with AI-powered schedule optimization. By analyzing task priorities, deadlines, estimated duration, and cognitive energy levels, FocusAI utilizes a Llama-3 model via Groq SDK to auto-generate a structured, chronological daily schedule.
 
-## Tech Stack
+---
 
-- Next.js 16 with the App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- Prisma ORM
-- PostgreSQL
-- Axios
-- Zustand
-- JWT auth with `jsonwebtoken`
-- Password hashing with `bcryptjs`
+## 🚀 Key Features
 
-## Getting Started
+*   **Smart Task Management**: Add, modify, delete, and categorize tasks with rich metadata (deadlines, priorities, estimated minutes, and required energy level from 1 to 5).
+*   **AI Daily Schedule Generation**: Instantly maps out an optimized timeline of task blocks and breaks using a custom LLM prompt, ensuring high-priority and high-energy tasks are placed early.
+*   **Performance & Coaching Analytics**: Dynamic metrics tracking active work units, task completion rates, and personalized daily AI coaching reviews.
+*   **Robust Security & Auth**: Implements custom JWT authentication with automatic refresh token rotation (stored securely as SHA-256 hashes in the database) and HTTPOnly cookies.
+*   **Optimized AI API Calls**: Integrates a fetch-first caching approach, only hitting the AI generation endpoint if requested by the user or if no schedule has been generated yet for the current day.
 
-Go inside the project folder:
+---
 
-```bash
-cd my-app
+## 🛠️ Tech Stack
+
+### Frontend
+*   **React 19 & Next.js 16 (App Router)**: Hybrid server-client rendering and file-based API routing.
+*   **Zustand 5**: Ultra-lightweight, reactive global state stores.
+*   **Axios**: Configured client with automatic JWT token insertion and credentials support.
+*   **Tailwind CSS 4**: Modern styling utility classes and variables.
+
+### Backend
+*   **Next.js API Route Handlers**: Decoupled, modular CRUD routes.
+*   **Prisma ORM**: Type-safe query building and database modeling.
+*   **PostgreSQL**: Scalable database layer hosted on Neon.
+*   **Groq SDK**: Connects to the `llama-3.3-70b-versatile` engine for sub-second schedule generation.
+*   **jsonwebtoken & bcryptjs**: Password hashing and secure token signatures.
+
+---
+
+## 📁 Project Architecture
+
+```text
+my-app/
+├── components/             # Reusable UI layout elements & cards
+│   ├── layout/             # Sidebar, Navbar, and Mobile Navigation
+│   └── ui/                 # Atomic Shadcn components (Button, Input, Card, Badge)
+├── prisma/                 # Prisma config, Schema definition, Migrations
+├── src/
+│   ├── app/                # Next.js App Router folders and routes
+│   │   ├── (dashboard)/    # Layout-wrapped routes: dashboard, tasks, schedule, stats
+│   │   ├── api/            # API Route handlers (Auth, Tasks, Schedules)
+│   │   └── page.tsx        # Auth page root mount
+│   ├── features/           # Frontend feature modules (e.g., auth pages, fetch layers)
+│   ├── lib/                # Shared connectors (axios, prisma, groq, prompts)
+│   ├── schema/             # Zod validation schemas
+│   ├── services/           # Backend database queries and logic
+│   ├── store/              # Zustand global states (authStore, taskStore, aiGenrateStore)
+│   ├── types/              # Unified TypeScript definitions
+│   ├── utils/              # Token utilities & auth verifications
+│   └── proxy.ts            # Next.js 16 route protection guard
+└── README.md               # Documentation
 ```
 
-Install dependencies:
+---
 
+## ⚙️ Configuration & Setup
+
+### 1. Prerequisites
+Ensure you have **Node.js (v18+)** and **npm** or **bun** installed.
+
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
+### 3. Setup Environment Variables
 Create a `.env` file in the project root:
-
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-ACCESS_TOKEN_SECRET="your-long-access-token-secret"
+# Database connection (hosted Neon Postgres recommended)
+DATABASE_URL="postgresql://neondb_owner:npg_...xxx.../neondb?sslmode=require"
+
+# JWT Signatures
+ACCESS_TOKEN_SECRET="your-strong-access-token-secret"
 ACCESS_TOKEN_EXPIRES_IN="15m"
-REFRESH_TOKEN_SECRET="your-long-refresh-token-secret"
+REFRESH_TOKEN_SECRET="your-strong-refresh-token-secret"
 REFRESH_TOKEN_EXPIRES_IN="7d"
+
+# Third-party Integrations
+GROQ_API_KEY="gsk_..."
 ```
 
+### 4. Database Setup & Sync
 Generate the Prisma client:
-
 ```bash
 npx prisma generate
 ```
-
-Run database migrations:
-
+Apply migrations to sync your schema with PostgreSQL:
 ```bash
 npx prisma migrate dev
 ```
 
+### 5. Run the Application
 Start the development server:
-
 ```bash
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-Open [http://localhost:3000](http://localhost:3000).
+---
 
-## Available Scripts
+## 📡 API Reference
 
-```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
-```
+### Auth Endpoints
+*   `POST /api/auth/register`: Creates a new user profile with password hashing.
+*   `POST /api/auth/login`: Validates credentials, issues JWTs, and sets the secure HttpOnly cookie.
+*   `POST /api/auth/me`: Retrieves current authenticated user context.
+*   `POST /api/auth/refresh`: Evaluates, rotates, and sets new secure tokens.
+*   `POST /api/auth/logout`: Clears both cookie keys and invalidates refresh hashes in the DB.
 
-The production build script runs:
+### Task Endpoints
+*   `GET /api/task`: Gets all tasks of the authenticated user.
+*   `POST /api/task`: Creates a task under Zod validation schemas.
+*   `PATCH /api/task/[taskId]`: Partially updates a specific task's parameters.
+*   `DELETE /api/task/[taskId]`: Removes a task.
 
-```bash
-prisma generate && next build
-```
+### Schedule Endpoints
+*   `GET /api/schedule/today`: Returns the today schedule if it has already been generated.
+*   `POST /api/schedule/generate`: Sends tasks to Llama 3 model on Groq, records the resulting blocks array in PostgreSQL, and increments daily AI counters.
 
-This matters because the generated Prisma client is ignored by Git and must be regenerated after install, schema changes, or deployment.
+---
 
-## Auth Flow
+## 🧠 Interview Prep & Technical Deep-Dive Guide
 
-Frontend routes:
+This section compiles the core engineering concepts, design decisions, and architectural patterns implemented in FocusAI. Use these topics as study modules for technical interviews:
 
-- `/`: signup and login page.
-- `/home`: protected page that verifies the `accessToken` cookie before rendering.
+### 1. Advanced JWT Auth & Security Architecture
+*   **Short-lived Access Tokens**: Access tokens are kept short-lived (e.g., `15m`) and stored in memory or client-safe short cookies. If an access token is compromised, the attacker's window of opportunity is extremely small.
+*   **Refresh Token Rotation (RTR)**: Every time a client requests a new access token using a refresh token, the server issues a *new* refresh token and invalidates the old one. This mitigates token-replay attacks. If a malicious actor intercepts a refresh token, the next attempt by either the user or the attacker to reuse an old refresh token will trigger a security exception, prompting immediate session invalidation.
+*   **Cryptographic Hashing in DB**: Refresh tokens are stored in the database as SHA-256 hashes (`tokenHash`), not plain text. If the database is compromised, the attacker cannot read the raw tokens to hijack active sessions.
+*   **HTTPOnly, Secure Cookies**: Cookies are configured with `httpOnly: true` (prevents access via Client JavaScript, neutralizing Cross-Site Scripting (XSS) attacks), `sameSite: "lax"` (mitigates Cross-Site Request Forgery (CSRF)), and `secure` (restricted to HTTPS channels in production).
 
-Auth API routes:
+### 2. State Management Paradigms (Zustand vs. Redux/Context)
+*   **Why Zustand?**: Zustand is a lightweight state manager based on hooks. Unlike **React Context**, updates in Zustand do not trigger re-renders of the entire component subtree. It bypasses Context Provider wrappers, avoiding the "Provider Hell" anti-pattern.
+*   **Selector Optimization**: Components subscribe to specific parts of the store state (e.g., `const tasks = useTaskStore((state) => state.tasks)`). If other variables in the store change (e.g., `editingTask`), the subscribing component does not re-render unless the select slice itself changes.
+*   **Transient State Updates**: Zustand allows updating component state directly without reacting to renders, which is useful for highly interactive elements or form validators.
 
-- `POST /api/auth/register`: validates input, hashes the password, and creates a user.
-- `POST /api/auth/login`: validates email/password, creates access and refresh tokens, stores a hashed refresh token, and sets `accessToken` and `refreshToken` cookies.
-- `GET /api/auth/me`: reads a bearer token or `accessToken` cookie, verifies it, and returns the current user.
-- `POST /api/auth/refresh`: reads the `refreshToken` cookie, verifies and rotates it, stores the new hashed refresh token, and sets fresh cookies.
-- `POST /api/auth/logout`: deletes the saved refresh token hash and clears auth cookies.
+### 3. Database Relations & ORM Modeling (Prisma & PostgreSQL)
+*   **Relational Integrity (1-to-Many Relationships)**: A user has many tasks, refresh tokens, and schedules. These are mapped via explicit `@relation` foreign keys pointing from children to the `User` model.
+*   **OnDelete Cascading**: All schemas implement `onDelete: Cascade`. If a `User` record is deleted, Prisma and PostgreSQL automatically clean up all associated `Task`, `Schedule`, `RefreshToken`, and `DailyLog` entries. This prevents "orphan rows" and ensures referential integrity.
+*   **Database Migrations**: Every schema change is mapped to incremental SQL change files in the `/prisma/migrations` folder, allowing teams to roll forward and backward in database state deterministically.
 
-Task API routes:
+### 4. Next.js Hydration & Rendering Flow (Client vs. Server Components)
+*   **Hydration**: The process where React runs in the browser, reads the pre-rendered HTML sent by the server, attaches event listeners, and initializes state, turning static markup into an interactive single-page app (SPA).
+*   **Avoiding Hydration Mismatch**: Hydration mismatches occur if the HTML generated by the server does not exactly match the initial HTML rendered by the client (e.g., referencing client-only state like `localStorage` or `window`). We avoid hydration mismatches by ensuring that initial states of central stores are identical on both server and client (e.g., showing skeleton loaders while data is fetched purely on client mount).
+*   **Server Components (RSC)**: React Server Components render entirely on the server. They reduce the JavaScript bundle size shipped to the client, offer direct database access (as seen in API handlers), and improve SEO.
 
-- `POST /api/task`: validates task input and creates a task for the authenticated user.
-- `GET /api/task`: returns all tasks for the authenticated user, newest updates first.
-- `GET /api/task/[taskId]`: returns one task only if it belongs to the authenticated user.
-- `PATCH /api/task/[taskId]`: validates task input and updates one task only if it belongs to the authenticated user.
-- `DELETE /api/task/[taskId]`: deletes one task only if it belongs to the authenticated user.
+### 5. Prompt Engineering & LLM Type Safety
+*   **JSON Enforcement**: When calling Groq's Llama model, we enforce structured JSON returns by explicitly requesting formatted JSON arrays and using Zod schemas (`safeParse`) on the backend response. If the LLM returns invalid structures, the API intercepts it with a `400 Bad Request` before committing corrupt data.
+*   **Caching AI Outputs**: Since LLM token usage is expensive, the client queries `GET /api/schedule/today` first. A new schedule is only generated when the user manually triggers it, saving API costs and database write cycles.
 
-Task route errors:
+---
 
-- Invalid task data returns `400`.
-- Missing or invalid authentication returns `401`.
-- Missing tasks return `404`.
-- Unexpected server errors return `500`.
+## 🚀 Production Deployment Checklist
 
-Route protection:
+### Vercel Deployment Settings
+- **Framework Preset**: Next.js
+- **Install Command**: `npm install`
+- **Build Command**: `npm run build` (runs `prisma generate && next build`)
+- **Output Directory**: `.next`
+- **Root Directory**: my-app
 
-- `src/proxy.ts` is the Next.js request guard.
-- It redirects unauthenticated users from `/home` to `/`.
-- It redirects already-authenticated users from `/` to `/home`.
-- JWT verification still happens in route/page code, while the proxy only checks whether an `accessToken` cookie exists.
-
-Token behavior:
-
-- Access tokens are short-lived.
-- Refresh tokens are longer-lived.
-- Refresh tokens are stored in the database as SHA-256 hashes, not plain text.
-- Cookies are `httpOnly`, `sameSite: "lax"`, and `secure` in production.
-
-## Frontend Stores
-
-The app uses simple Zustand stores for frontend state.
-
-Axios instance:
-
-- File: `src/lib/axios.ts`
-- Base URL: `/api`
-- Sends cookies with requests using `withCredentials: true`
-- Adds the saved `accessToken` from `localStorage` to the `Authorization` header
-
-Auth store:
-
-- File: `src/store/authStore.ts`
-- Keeps `user`, `token`, `isLoading`, and `error`
-- Has `login(data)` for `POST /api/auth/login`
-- Saves the access token in `localStorage`
-- Has `logout()` for `POST /api/auth/logout`
-
-Task store:
-
-- File: `src/store/taskStore.ts`
-- Keeps `tasks`, `stats`, `isLoading`, and `error`
-- Has `fetchTasks()`, `addTask()`, `updateTask()`, `deleteTask()`, and `completeTask()`
-- Gets task data from the task API routes
-- Calculates basic stats from the task list:
-
-```ts
-stats: {
-  total,
-  todo,
-  inProgress,
-  completed
-}
-```
-
-## Wiring Status
-
-Checked by reading the code and running `npm run build`:
-
-- Signup UI is wired to `POST /api/auth/register`.
-- Login UI uses `useAuthStore`, calls `POST /api/auth/login`, stores the access token, and redirects to `/home`.
-- Login and refresh routes set both auth cookies.
-- `/home` validates the access token and redirects to `/` when invalid.
-- `src/proxy.ts` protects `/` and `/home`.
-- `/api/auth/me`, `/api/auth/refresh`, and `/api/auth/logout` exist, but there is no frontend UI currently calling them.
-- Task create, list, read, update, and delete API routes are wired to Zod validation and service logic.
-- `useTaskStore` is ready for frontend task screens and can also calculate task stats.
-
-## Project Structure
-
-```text
-src/app/                    Next.js app routes and layout
-src/app/api/auth/           Auth API routes
-src/app/api/task/           Task API routes
-src/app/home/               Protected home page
-src/proxy.ts                Next.js route guard
-src/features/auth/          Frontend auth feature
-src/features/auth/api/      Frontend fetch helpers
-src/features/auth/components Auth UI components
-src/lib/                    Shared app libraries
-src/schema/                 Zod validation schemas
-src/services/               Backend service logic
-src/store/                  Zustand auth and task stores
-src/types/                  Shared frontend types
-src/utils/                  Token utilities
-prisma/                     Prisma schema and migrations
-public/                     Static assets
-```
-
-## Database Schema
-
-The Prisma schema is defined in `prisma/schema.prisma`.
-
-Current models:
-
-- `User`: account profile with email, password, refresh tokens, tasks, schedules, and daily logs
-- `RefreshToken`: stored token hashes for refresh sessions
-- `Task`: user tasks with priority, status, effort, energy requirement, and deadline
-- `Schedule`: daily schedule blocks with optional AI-generated summary
-- `DailyLog`: productivity metrics such as completed tasks, missed tasks, score, and AI calls used
-
-Current enums:
-
-- `Priority`: `LOW`, `MEDIUM`, `HIGH`
-- `Status`: `TODO`, `IN_PROGRESS`, `COMPLETED`
-
-## Prisma Notes
-
-The Prisma client is generated into the default location under `node_modules/@prisma/client`. Regenerate it with:
-
-```bash
-npx prisma generate
-```
-
-## Vercel Deployment
-
-Vercel settings:
-
-```text
-Framework Preset: Next.js
-Install Command: npm install
-Build Command: npm run build
-Output Directory: .next
-Root Directory: my-app
-```
-
-Add these environment variables in Vercel:
-
-```env
-DATABASE_URL="your-production-database-url"
-ACCESS_TOKEN_SECRET="your-long-access-token-secret"
-ACCESS_TOKEN_EXPIRES_IN="15m"
-REFRESH_TOKEN_SECRET="your-long-refresh-token-secret"
-REFRESH_TOKEN_EXPIRES_IN="7d"
-```
-
-Before deploying, make sure:
-
-- `DATABASE_URL` is configured
-- token secrets are strong random values
-- migrations are applied to the production database
-- `npm run build` succeeds locally or in CI
+### Steps
+1. Push your repository to GitHub.
+2. Link your repository in Vercel.
+3. Configure all `.env` secrets under **Project Settings -> Environment Variables**.
+4. Deploy the project and execute database migrations.

@@ -1,7 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const authRoutes = ["/"];
-const protectedRoutes = ["/home"];
+const protectedRoutes = [
+  "/home",
+  "/tasks",
+  "/dashboard",
+  "/schedule",
+  "/stats",
+  "/genrate",
+];
 
 const isRouteMatch = (pathname: string, routes: string[]) => {
   return routes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
@@ -23,5 +30,13 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/home/:path*"],
+  matcher: [
+    "/",
+    "/home/:path*",
+    "/tasks/:path*",
+    "/dashboard/:path*",
+    "/schedule/:path*",
+    "/stats/:path*",
+    "/genrate/:path*",
+  ],
 };
